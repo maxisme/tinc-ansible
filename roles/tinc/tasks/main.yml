@@ -1,0 +1,85 @@
+---
+
+- name: delete tinc directory
+  file: >
+    path=/etc/tinc/
+    state=absent
+
+- name: create tinc directory
+  file:
+    path: /etc/tinc/
+    state: directory
+    mode: '0755'
+
+- name: install tinc
+  package: >
+    name=tinc
+    state=latest
+
+- name: create tinc.conf file
+  template: >
+    src=tinc.conf.j2
+    dest=/etc/tinc/tinc.conf
+  notify:
+    - reload tinc
+
+- name: create tinc-up file
+  template: >
+    src=tinc-up.j2
+    dest=/etc/tinc/tinc-up
+    mode=0755
+  notify:
+    - restart tinc
+
+- name: create tinc-down file
+  template: >
+    src=tinc-down.j2
+    dest=/etc/tinc/tinc-down
+    mode=0755
+  notify:
+    - restart tinc
+
+- name: create hosts directory
+  file:
+    path: /etc/tinc/hosts
+    state: directory
+    mode: '0755'
+
+- name: create keys
+  shell:
+    cmd: tincd -c /etc/tinc -K
+
+- blockinfile:
+    path: /etc/tinc/hosts/{{tinc_name}}
+    insertbefore: BOF
+    block: |
+      {% if tinc_name != 'home' %}Address = {{ ansible_host }}{% endif %}
+
+      Subnet = {{ vpn_ip }}/32
+
+  notify:
+    - reload tinc
+
+- name: fetch tinc hosts to sync
+  fetch: >
+    src=/etc/tinc/hosts/{{tinc_name}}
+    dest=fetch/
+    flat=yes
+  notify:
+    - reload tinc
+
+- name: sync the fetched tinc hosts files on each host
+  synchronize: >
+    src=fetch/
+    dest=/etc/tinc/hosts/
+  notify:
+    - reload tinc
+
+- name: run handlers
+  meta: flush_handlers
+
+- name: Start tinc
+  service:
+    name: tincd
+    pattern: /usr/sbin/tincd
+    state: started
