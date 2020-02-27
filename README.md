@@ -16,3 +16,6 @@ ansible-playbook site.yml -i hosts
 ```
 
 make sure tincd is running on both nodes `tincd` 
+
+
+Massive thanks to https://github.com/thisismitch/ansible-tinc for teaching me a few ansible tricks!
