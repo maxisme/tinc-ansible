@@ -6,7 +6,7 @@
     enabled=no
     state=stopped
 
-- name: delete tinc netname directory
+- name: delete tinc directory
   file: >
     path=/etc/tinc/
     state=absent

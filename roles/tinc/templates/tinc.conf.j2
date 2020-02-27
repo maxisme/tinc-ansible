@@ -1,6 +1,6 @@
 Name = {{ tinc_name }}
 AddressFamily = ipv4
-Interface = {{ vpn_interface }}
+Interface = tun0
 {% for host in play_hosts %}
 {% if tinc_name != hostvars[host]['tinc_name'] and tinc_name == 'home' %}
 ConnectTo = {{ hostvars[host]['tinc_name'] }}
