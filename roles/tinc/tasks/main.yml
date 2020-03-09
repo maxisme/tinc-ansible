@@ -78,8 +78,7 @@
 - name: run handlers
   meta: flush_handlers
 
-- name: Start tinc
-  service:
-    name: tincd
-    pattern: /usr/sbin/tincd
-    state: started
+- name: enable service tinc
+  systemd:
+    name: tync
+    enabled: yes
